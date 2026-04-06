@@ -1,0 +1,56 @@
+# Agent OS — Global Configuration
+# Edit these to change system-wide behavior.
+# Per-project overrides go in projects/<name>/config.yaml
+
+model:
+  provider: anthropic
+  name: claude-sonnet-4-20250514
+  max_tokens: 8192
+  temperature: 0.3
+
+loop:
+  max_iterations: 200        # hard stop on runaway loops
+  sleep_seconds: 2           # pause between iterations
+  max_task_retries: 5        # escalate after this many consecutive failures
+  max_critic_rejections: 3   # escalate after this many Critic rejections
+
+agents:
+  orchestrator: agents/orchestrator.md
+  developer: agents/developer.md
+  qa: agents/qa.md
+  critic: agents/critic.md
+  researcher: agents/researcher.md
+
+task_agent_map:
+  plan: orchestrator
+  research: researcher
+  code: developer
+  test: qa
+  review: critic
+
+logging:
+  level: INFO                # DEBUG | INFO | WARNING | ERROR
+  save_agent_logs: true      # save each agent's full output to memory/agent_logs/
+  log_to_file: true
+  log_file: logs/agent-os.log
+
+obsidian:
+  # Set OBSIDIAN_VAULT_PATH in .env to enable automatic sync.
+  # Example: OBSIDIAN_VAULT_PATH=/Users/you/Documents/MyVault
+  #
+  # On each task completion the loop writes to:
+  #   <vault>/DevOS/<project-name>/Dashboard.md
+  #   <vault>/DevOS/<project-name>/Decisions.md
+  #   <vault>/DevOS/<project-name>/Blockers.md
+  #   <vault>/DevOS/<project-name>/QA Report.md
+  #
+  # Manual sync (without running the loop):
+  #   python -c "from core.obsidian import sync_project, vault_path_from_env; \
+  #              from pathlib import Path; \
+  #              sync_project(Path('projects/my-project'), vault_path_from_env())"
+  vault_path: ""             # overridden by OBSIDIAN_VAULT_PATH env var
+
+memory:
+  # decisions.md is compressed by Claude when it exceeds this character count (~1k tokens).
+  # The raw log is archived to memory/archive/decisions_<timestamp>.md.
+  decisions_compress_threshold: 4000
