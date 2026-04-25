@@ -40,5 +40,10 @@ Append to /memory/decisions.md:
 - SUGGESTION: log for future reference, do not block.
 
 ## Approval
-If no MUST FIX issues: set task status to "approved" in /memory/tasks.json.
-If MUST FIX issues: set task status to "changes-required" in /memory/tasks.json.
+If no MUST FIX issues:
+- Do NOT modify `tasks.json` directly
+- Return `TASK COMPLETE: approved`
+
+If MUST FIX issues:
+- Do NOT modify `tasks.json` directly
+- Return `TASK FAILED: <must-fix summary>`

@@ -1,4 +1,4 @@
-# Agent OS — Autonomous Development System
+# FrinkLoop — Autonomous Development System
 # READ THIS FIRST. EVERY SESSION. NO EXCEPTIONS.
 
 ## What This Is
@@ -20,7 +20,7 @@ Each project lives in /projects/<name>/. You spawn sub-agents to do the work.
 2. Read /memory/tasks.json          — what tasks are pending/in-progress/done?
 3. Read /memory/blockers.md         — anything blocking?
 4. Read /core/escalation-rules.md  — when must you stop and ask the human?
-5. If new project: run /scripts/new-project.sh <name>
+5. If new project: run `python3 frinkloop.py new <name>`
 6. Begin the MAIN LOOP
 
 ---
@@ -56,7 +56,7 @@ Each agent has a definition file in /agents/. Load it before spawning.
 
 | Agent       | File                      | Responsibility                   |
 |-------------|---------------------------|----------------------------------|
-| Dev         | /agents/dev.md            | Write and edit code              |
+| Developer   | /agents/developer.md      | Write and edit code              |
 | QA          | /agents/qa.md             | Test everything, write reports   |
 | Critic      | /agents/critic.md         | Code review, enforce standards   |
 | Docs        | /agents/docs.md           | README, API docs, comments       |
@@ -91,7 +91,7 @@ Each agent has a definition file in /agents/. Load it before spawning.
 ---
 
 ## Starting a New Project
-  bash /scripts/new-project.sh <project-name> "one line description"
+  python3 frinkloop.py new <project-name>
 
 This copies the template, initializes memory, and creates the first plan.
 

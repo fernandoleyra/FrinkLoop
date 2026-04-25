@@ -69,7 +69,7 @@ def _render(project_name: str, project_path: Path, memory_path: Path) -> None:
 
     lines = []
     lines.append(_divider(width))
-    lines.append(f"  Agent OS — {project_name:<30} {now:>10}  ")
+    lines.append(f"  FrinkLoop — {project_name:<30} {now:>10}  ")
     lines.append(_divider(width))
 
     # State

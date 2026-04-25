@@ -11,26 +11,22 @@ set -e
 
 PROJECT_NAME=${1:-""}
 DRY_RUN=${2:-""}
-AGENT_OS_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PYTHON_BIN="${PYTHON:-python3}"
 
 if [ -z "$PROJECT_NAME" ]; then
   echo "Usage: ./run_project.sh <project-name> [--dry-run]"
   echo ""
   echo "Active projects:"
-  ls "$AGENT_OS_ROOT/projects/" 2>/dev/null || echo "  (none yet)"
+  find "$ROOT_DIR/projects" -mindepth 1 -maxdepth 1 -type d -not -name "_template" -exec basename {} \; 2>/dev/null || echo "  (none yet)"
   exit 1
 fi
 
-if [ -z "$ANTHROPIC_API_KEY" ]; then
-  echo "Error: ANTHROPIC_API_KEY is not set."
-  exit 1
-fi
-
-PROJECT_PATH="$AGENT_OS_ROOT/projects/$PROJECT_NAME"
+PROJECT_PATH="$ROOT_DIR/projects/$PROJECT_NAME"
 
 if [ ! -d "$PROJECT_PATH" ]; then
   echo "Project not found: $PROJECT_PATH"
-  echo "Create it first: ./scripts/new_project.sh $PROJECT_NAME"
+  echo "Create it first: $PYTHON_BIN frinkloop.py new $PROJECT_NAME"
   exit 1
 fi
 
@@ -49,24 +45,26 @@ fi
 
 echo ""
 echo "════════════════════════════════════════════"
-echo "  Agent OS — Starting"
+echo "  FrinkLoop — Starting"
 echo "  Project: $PROJECT_NAME"
 echo "  Path: $PROJECT_PATH"
 echo "════════════════════════════════════════════"
 echo ""
 
 # Load .env if present
-if [ -f "$AGENT_OS_ROOT/.env" ]; then
+if [ -f "$ROOT_DIR/.env" ]; then
   echo "Loading environment from .env..."
-  export $(cat "$AGENT_OS_ROOT/.env" | grep -v '^#' | xargs)
+  set -a
+  . "$ROOT_DIR/.env"
+  set +a
 fi
 
 # Run the loop
-cd "$AGENT_OS_ROOT"
+cd "$ROOT_DIR"
 
 if [ "$DRY_RUN" = "--dry-run" ]; then
   echo "Running in DRY RUN mode — no API calls will be made"
-  python -m core.loop --project "$PROJECT_NAME" --dry-run
+  "$PYTHON_BIN" frinkloop.py run "$PROJECT_NAME" --dry-run
 else
-  python -m core.loop --project "$PROJECT_NAME"
+  "$PYTHON_BIN" frinkloop.py run "$PROJECT_NAME"
 fi

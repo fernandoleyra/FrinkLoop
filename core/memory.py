@@ -10,8 +10,10 @@ from pathlib import Path
 from datetime import datetime
 from typing import Optional
 
-# decisions.md is compressed when it exceeds this character count (~1k tokens)
-DECISIONS_COMPRESS_THRESHOLD = 4000
+from core.models import TaskBoard
+import core.config as cfg
+
+DECISIONS_COMPRESS_THRESHOLD = cfg.get("memory", "decisions_compress_threshold", 4000)
 
 
 class Memory:
@@ -28,17 +30,19 @@ class Memory:
 
     # ── Tasks ─────────────────────────────────────────────────────────────────
 
-    def load_tasks(self) -> Optional[dict]:
-        """Load tasks.json. Returns None if it doesn't exist yet."""
+    def load_tasks(self) -> Optional[TaskBoard]:
+        """Load tasks.json into a validated task board."""
         tasks_path = self.memory_path / "tasks.json"
         if not tasks_path.exists():
             return None
-        return json.loads(tasks_path.read_text())
+        return TaskBoard.from_dict(json.loads(tasks_path.read_text()))
 
-    def save_tasks(self, tasks: dict) -> None:
-        """Save tasks.json atomically."""
+    def save_tasks(self, tasks: TaskBoard | dict) -> None:
+        """Save tasks.json in the normalized nested milestone format."""
         tasks_path = self.memory_path / "tasks.json"
-        tasks_path.write_text(json.dumps(tasks, indent=2))
+        board = tasks if isinstance(tasks, TaskBoard) else TaskBoard.from_dict(tasks)
+        board.recalculate_progress()
+        tasks_path.write_text(json.dumps(board.to_dict(), indent=2))
 
     def update_task_status(
         self,
@@ -46,27 +50,25 @@ class Memory:
         status: str,
         result: Optional[str] = None,
         error: Optional[str] = None,
+        metadata: Optional[dict] = None,
     ) -> None:
         """Update a single task's status in tasks.json."""
         tasks = self.load_tasks()
         if not tasks:
             return
 
-        for milestone in tasks.get("milestones", []):
-            for task in milestone.get("tasks", []):
-                if task["id"] == task_id:
-                    task["status"] = status
-                    task["updated_at"] = datetime.now().isoformat()
+        for milestone in tasks.milestones:
+            for task in milestone.tasks:
+                if task.id == task_id:
+                    task.status = status
+                    task.updated_at = datetime.now().isoformat()
                     if result:
-                        task["result_summary"] = result[:500]
+                        task.result_summary = result[:500]
                     if error:
-                        task["last_error"] = error[:500]
+                        task.last_error = error[:500]
+                    if metadata:
+                        task.extras.update(metadata)
                     break
-
-            # Check if milestone is now complete
-            all_done = all(t.get("status") == "done" for t in milestone.get("tasks", []))
-            if all_done and milestone.get("tasks"):
-                milestone["status"] = "done"
 
         self.save_tasks(tasks)
 
@@ -76,11 +78,26 @@ class Memory:
         if not tasks:
             return 1
 
-        for milestone in tasks.get("milestones", []):
-            for task in milestone.get("tasks", []):
-                if task["id"] == task_id:
-                    count = task.get("fail_count", 0) + 1
-                    task["fail_count"] = count
+        for milestone in tasks.milestones:
+            for task in milestone.tasks:
+                if task.id == task_id:
+                    count = task.fail_count + 1
+                    task.fail_count = count
+                    self.save_tasks(tasks)
+                    return count
+        return 1
+
+    def increment_critic_rejections(self, task_id: str) -> int:
+        """Increment and return the critic rejection count for a task."""
+        tasks = self.load_tasks()
+        if not tasks:
+            return 1
+
+        for milestone in tasks.milestones:
+            for task in milestone.tasks:
+                if task.id == task_id:
+                    count = task.critic_rejections + 1
+                    task.critic_rejections = count
                     self.save_tasks(tasks)
                     return count
         return 1
@@ -164,13 +181,13 @@ class Memory:
 
     def generate_summary(self) -> str:
         """Generate a completion summary for the human."""
-        tasks = self.load_tasks() or {}
-        total = sum(len(m.get("tasks", [])) for m in tasks.get("milestones", []))
-        done = sum(
-            1 for m in tasks.get("milestones", [])
-            for t in m.get("tasks", [])
-            if t.get("status") == "done"
-        )
+        tasks = self.load_tasks()
+        if tasks:
+            total = len(tasks.all_tasks())
+            done = sum(1 for task in tasks.all_tasks() if task.status == "done")
+        else:
+            total = 0
+            done = 0
 
         src_tree = self._get_src_summary()
         decisions_path = self.memory_path / "decisions.md"

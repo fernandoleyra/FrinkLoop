@@ -1,5 +1,5 @@
 #!/bin/bash
-# new-project.sh — Initialize a new project in the Agent OS
+# new-project.sh — Initialize a new project in FrinkLoop
 # Usage: bash new-project.sh <project-name> "short description"
 
 set -e
@@ -39,7 +39,7 @@ done
 cd "$PROJECT_DIR"
 git init -q
 git add .
-git commit -q -m "chore: initialize project from Agent OS template"
+git commit -q -m "chore: initialize project from FrinkLoop template"
 
 # Update memory/state.json
 cat > "$ROOT_DIR/memory/state.json" << STATEOF

@@ -4,7 +4,7 @@ core/obsidian.py — Obsidian vault sync
 Exports project memory to an Obsidian vault as structured, interlinked notes.
 Enable by setting OBSIDIAN_VAULT_PATH in your .env file.
 
-Notes written under <vault>/DevOS/<project-name>/:
+Notes written under <vault>/FrinkLoop/<project-name>/:
   Dashboard.md   — task status table + progress
   Decisions.md   — current architectural decisions (compressed if large)
   Blockers.md    — active blockers
@@ -27,7 +27,7 @@ from datetime import datetime
 def sync_project(project_path: Path, vault_path: Path) -> None:
     """Sync all project memory files to the Obsidian vault."""
     project_name = project_path.name
-    vault_dir = vault_path / "DevOS" / project_name
+    vault_dir = vault_path / "FrinkLoop" / project_name
     vault_dir.mkdir(parents=True, exist_ok=True)
 
     _write_dashboard(project_path, vault_dir, project_name)
@@ -42,7 +42,7 @@ def _write_dashboard(project_path: Path, vault_dir: Path, project_name: str) -> 
     tasks_path = project_path / "memory" / "tasks.json"
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
 
-    lines = [_frontmatter(f"{project_name} — Dashboard", ["devos", "dashboard", project_name.lower().replace(" ", "-")], now)]
+    lines = [_frontmatter(f"{project_name} — Dashboard", ["frinkloop", "dashboard", project_name.lower().replace(" ", "-")], now)]
     lines.append(f"# {project_name}\n\n")
     lines.append(f"> Last synced: {now}\n\n")
 
@@ -91,7 +91,7 @@ def _write_decisions(project_path: Path, vault_dir: Path, project_name: str) -> 
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
 
     body = decisions_path.read_text() if decisions_path.exists() else "_No decisions logged yet._\n"
-    header = _frontmatter(f"{project_name} — Decisions", ["devos", "decisions", project_name.lower().replace(" ", "-")], now)
+    header = _frontmatter(f"{project_name} — Decisions", ["frinkloop", "decisions", project_name.lower().replace(" ", "-")], now)
     header += f"> Last synced: {now} | [[Dashboard]]\n\n"
 
     (vault_dir / "Decisions.md").write_text(header + body)
@@ -102,7 +102,7 @@ def _write_blockers(project_path: Path, vault_dir: Path, project_name: str) -> N
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
 
     body = blockers_path.read_text() if blockers_path.exists() else "_No blockers._\n"
-    header = _frontmatter(f"{project_name} — Blockers", ["devos", "blockers", project_name.lower().replace(" ", "-")], now)
+    header = _frontmatter(f"{project_name} — Blockers", ["frinkloop", "blockers", project_name.lower().replace(" ", "-")], now)
     header += f"> Last synced: {now} | [[Dashboard]]\n\n"
 
     (vault_dir / "Blockers.md").write_text(header + body)
@@ -113,7 +113,7 @@ def _write_qa_report(project_path: Path, vault_dir: Path, project_name: str) -> 
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
 
     body = qa_path.read_text() if qa_path.exists() else "_No QA report yet._\n"
-    header = _frontmatter(f"{project_name} — QA Report", ["devos", "qa", project_name.lower().replace(" ", "-")], now)
+    header = _frontmatter(f"{project_name} — QA Report", ["frinkloop", "qa", project_name.lower().replace(" ", "-")], now)
     header += f"> Last synced: {now} | [[Dashboard]]\n\n"
 
     (vault_dir / "QA Report.md").write_text(header + body)

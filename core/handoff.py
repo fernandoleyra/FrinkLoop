@@ -99,11 +99,11 @@ cd "$(basename <your-repo-url> .git)"
 
 # 2. Set up environment
 cp .env.example .env
-# Add your ANTHROPIC_API_KEY (and GITHUB_TOKEN, OBSIDIAN_VAULT_PATH if needed)
-python agentos.py init
+# Add your model provider settings (and GITHUB_TOKEN, OBSIDIAN_VAULT_PATH if needed)
+python3 frinkloop.py init
 
 # 3. Wake the project
-python agentos.py wake {project_name}
+python3 frinkloop.py wake {project_name}
 ```
 
 ---
@@ -157,7 +157,7 @@ python agentos.py wake {project_name}
 
     print()
     print(f"  Handoff complete. Share HANDOFF.md or push the repo to resume on another machine.")
-    print(f"  Resume command:  python agentos.py wake {project_name}\n")
+    print(f"  Resume command:  python3 frinkloop.py wake {project_name}\n")
 
 
 # ── Wake ─────────────────────────────────────────────────────────────────────
@@ -186,7 +186,7 @@ def wake_project(project_name: str, dry_run: bool = False) -> None:
         print("  Environment issues found:")
         for issue in issues:
             print(f"    ✗ {issue}")
-        print("\n  Fix these before resuming. Run: python agentos.py init")
+        print("\n  Fix these before resuming. Run: python3 frinkloop.py init")
         sys.exit(1)
     print("  ✓ Environment looks good\n")
 
@@ -213,7 +213,7 @@ def wake_project(project_name: str, dry_run: bool = False) -> None:
         sys.exit(0)
 
     if answer and not answer.startswith("y"):
-        print("  Aborted. Run when ready:  python agentos.py run " + project_name)
+        print("  Aborted. Run when ready:  python3 frinkloop.py run " + project_name)
         return
 
     print()
@@ -296,7 +296,6 @@ def _print_handoff_summary(handoff_path: Path) -> None:
 
 
 def _validate_env() -> list:
-    issues = []
-    if not os.getenv("ANTHROPIC_API_KEY"):
-        issues.append("ANTHROPIC_API_KEY is not set")
-    return issues
+    from core.llm import validate_llm_env
+
+    return validate_llm_env()

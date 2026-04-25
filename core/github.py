@@ -1,5 +1,5 @@
 """
-core/github.py — GitHub integration for Agent OS
+core/github.py — GitHub integration for FrinkLoop
 
 Provides:
   commit_task(project_path, task)   — git commit after each completed task
@@ -19,7 +19,7 @@ import json
 import logging
 from pathlib import Path
 
-log = logging.getLogger("agent-os")
+log = logging.getLogger("frinkloop")
 
 
 # ── Public API ────────────────────────────────────────────────────────────────
@@ -103,9 +103,9 @@ def open_issue_for_blocker(project_path: Path, task_id: str, reason: str) -> str
         "body": (
             f"**Task ID**: {task_id}\n\n"
             f"**Reason**:\n{reason}\n\n"
-            f"_Opened automatically by Agent OS_"
+            f"_Opened automatically by FrinkLoop_"
         ),
-        "labels": ["agent-os", "blocker"],
+        "labels": ["frinkloop", "blocker"],
     }).encode()
 
     req = urllib.request.Request(
@@ -114,7 +114,7 @@ def open_issue_for_blocker(project_path: Path, task_id: str, reason: str) -> str
         headers={
             "Authorization": f"token {token}",
             "Content-Type": "application/json",
-            "User-Agent": "agentos",
+            "User-Agent": "frinkloop",
         },
         method="POST",
     )

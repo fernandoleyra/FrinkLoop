@@ -47,9 +47,7 @@ Thumbs.db
 *.swp
 *.swo
 
-# ── Accidental files (shell glob expansion artifacts) ─────────────────────────
+# ── Stray artifacts ───────────────────────────────────────────────────────────
 ziqifFWO
-{agents,core,templates
-{agents,core,templates/{web-app,api,scraper,cli-tool},tools,prompts,config,scripts,projects
-{agents,memory,projects
-{agents,memory,projects/_template,core,logs,scripts}
+.history/
+

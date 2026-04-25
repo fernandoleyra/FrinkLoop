@@ -1,6 +1,6 @@
-# Agent OS — Claude Code CLI Playbook
+# FrinkLoop — Claude Code CLI Playbook
 
-This document turns **Claude Code** into the full Agent OS runtime.
+This document turns **Claude Code** into the full FrinkLoop runtime.
 No Python loop, no separate API calls. You are the Orchestrator.
 Sub-agents run as Claude Code sub-agents via the `Agent` tool.
 
@@ -11,13 +11,13 @@ Sub-agents run as Claude Code sub-agents via the `Agent` tool.
 Tell Claude Code:
 
 ```
-Read DEVOS_PLAY.md then run the Agent OS loop for project <name>
+Read FRINKLOOP_PLAY.md then run the FrinkLoop loop for project <name>
 ```
 
 Or to create a project from scratch:
 
 ```
-Read DEVOS_PLAY.md then create a new project called <name> and run it
+Read FRINKLOOP_PLAY.md then create a new project called <name> and run it
 ```
 
 ---

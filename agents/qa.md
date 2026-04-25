@@ -39,9 +39,15 @@ Write a report to /memory/qa_report.md:
   REASON (if rejected): <exact description of what failed>
 
 ## If FAIL
-- Set task status to "qa-failed" in /memory/tasks.json
-- The Orchestrator will create a fix_task for the Dev agent
+- Do NOT modify `tasks.json` directly
+- Return `TASK FAILED: <reason>` so the runtime can block the task
+- Include executed commands in `RESULT_JSON.tests_run`
 - Do NOT attempt to fix the code yourself
+
+## If PASS
+- Do NOT modify `tasks.json` directly
+- Return `TASK COMPLETE: <summary>` so the runtime can advance to Critic
+- Include executed commands in `RESULT_JSON.tests_run`
 
 ## Golden Rule
 When in doubt: FAIL. It is always cheaper to fix now than after shipping.

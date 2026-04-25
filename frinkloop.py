@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-agentos — The Agent OS command-line interface
+frinkloop — The FrinkLoop command-line interface
 
 Commands:
   init              First-time setup wizard
@@ -13,12 +13,12 @@ Commands:
   help              Show this message
 
 Usage:
-  python agentos.py init
-  python agentos.py new my-app
-  python agentos.py run my-app
-  python agentos.py watch my-app
-  python agentos.py handoff my-app
-  python agentos.py wake my-app
+  python3 frinkloop.py init
+  python3 frinkloop.py new my-app
+  python3 frinkloop.py run my-app
+  python3 frinkloop.py watch my-app
+  python3 frinkloop.py handoff my-app
+  python3 frinkloop.py wake my-app
 """
 
 import os
@@ -26,6 +26,8 @@ import sys
 import argparse
 from pathlib import Path
 from dotenv import load_dotenv
+
+from core.llm import validate_llm_env, verify_llm_connection
 
 ROOT = Path(__file__).parent
 load_dotenv(ROOT / ".env")
@@ -35,13 +37,14 @@ load_dotenv(ROOT / ".env")
 
 def main():
     parser = argparse.ArgumentParser(
-        prog="agentos",
-        description="Agent OS — autonomous development system",
+        prog="frinkloop",
+        description="FrinkLoop — autonomous development system",
         add_help=False,
     )
     parser.add_argument("command", nargs="?", default="help")
     parser.add_argument("project", nargs="?", default=None)
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--no-hitl", action="store_true", help="Skip interactive escalation; auto-skip failing tasks")
     parser.add_argument("--push", action="store_true", help="Push to GitHub after handoff")
     args = parser.parse_args()
 
@@ -69,7 +72,7 @@ def main():
 
 def cmd_init(args=None):
     """Interactive first-time setup wizard."""
-    _banner("Agent OS — Setup")
+    _banner("FrinkLoop — Setup")
 
     env_path = ROOT / ".env"
     existing = {}
@@ -81,13 +84,45 @@ def cmd_init(args=None):
 
     print("This sets up your .env file. Press Enter to keep existing values.\n")
 
-    # API key
-    current_key = existing.get("ANTHROPIC_API_KEY", os.getenv("ANTHROPIC_API_KEY", ""))
-    if current_key:
-        masked = current_key[:8] + "..." + current_key[-4:]
-        api_key = _prompt(f"Anthropic API key [{masked}]", default=current_key, secret=True)
-    else:
-        api_key = _prompt("Anthropic API key", required=True, secret=True)
+    current_provider = existing.get("MODEL_PROVIDER", os.getenv("MODEL_PROVIDER", "anthropic"))
+    provider = _prompt(
+        f"Model provider [anthropic/openrouter/groq/ollama/gemini] [{current_provider}]",
+        default=current_provider,
+    ).strip().lower()
+    if provider not in {"anthropic", "openrouter", "groq", "ollama", "gemini"}:
+        print(f"Unsupported provider: {provider}")
+        sys.exit(1)
+
+    model_defaults = {
+        "anthropic": "claude-sonnet-4-20250514",
+        "openrouter": "anthropic/claude-3.5-sonnet",
+        "groq": "llama-3.3-70b-versatile",
+        "ollama": "llama3.1",
+        "gemini": "gemini-2.0-flash",
+    }
+    current_model = existing.get("MODEL_NAME", os.getenv("MODEL_NAME", model_defaults[provider]))
+    model_name = _prompt(f"Model name [{current_model}]", default=current_model).strip()
+
+    api_env_map = {
+        "anthropic": "ANTHROPIC_API_KEY",
+        "openrouter": "OPENROUTER_API_KEY",
+        "groq": "GROQ_API_KEY",
+        "gemini": "GEMINI_API_KEY",
+    }
+    api_key = ""
+    if provider in api_env_map:
+        api_env = api_env_map[provider]
+        current_key = existing.get(api_env, os.getenv(api_env, ""))
+        if current_key:
+            masked = current_key[:8] + "..." + current_key[-4:]
+            api_key = _prompt(f"{api_env} [{masked}]", default=current_key, secret=True)
+        else:
+            api_key = _prompt(api_env, required=True, secret=True)
+
+    ollama_base_url = ""
+    if provider == "ollama":
+        current_base_url = existing.get("OLLAMA_BASE_URL", os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"))
+        ollama_base_url = _prompt(f"Ollama base URL [{current_base_url}]", default=current_base_url).strip()
 
     # GitHub token (optional)
     current_gh = existing.get("GITHUB_TOKEN", "")
@@ -111,9 +146,14 @@ def cmd_init(args=None):
 
     # Write .env
     lines = [
-        f"ANTHROPIC_API_KEY={api_key}",
+        f"MODEL_PROVIDER={provider}",
+        f"MODEL_NAME={model_name}",
         f"DEFAULT_STACK={default_stack}",
     ]
+    if api_key:
+        lines.append(f"{api_env_map[provider]}={api_key}")
+    if ollama_base_url:
+        lines.append(f"OLLAMA_BASE_URL={ollama_base_url}")
     if gh_token:
         lines.append(f"GITHUB_TOKEN={gh_token}")
     if obsidian:
@@ -124,14 +164,11 @@ def cmd_init(args=None):
     print()
     print("  ✓ .env written")
 
-    # Verify API key works
-    try:
-        import anthropic
-        client = anthropic.Anthropic(api_key=api_key)
-        client.models.list()
-        print("  ✓ Anthropic API key verified")
-    except Exception:
-        print("  ⚠ Could not verify Anthropic API key — check it is correct")
+    ok, message = verify_llm_connection()
+    if ok:
+        print(f"  ✓ {message}")
+    else:
+        print(f"  ⚠ Could not verify model provider connection — {message}")
 
     # Verify GitHub token
     if gh_token:
@@ -139,7 +176,7 @@ def cmd_init(args=None):
             import urllib.request
             req = urllib.request.Request(
                 "https://api.github.com/user",
-                headers={"Authorization": f"token {gh_token}", "User-Agent": "agentos"},
+                headers={"Authorization": f"token {gh_token}", "User-Agent": "frinkloop"},
             )
             with urllib.request.urlopen(req, timeout=5) as r:
                 import json
@@ -157,13 +194,13 @@ def cmd_init(args=None):
 
     print()
     print("  Ready. Next step:")
-    print("    python agentos.py new <project-name>\n")
+    print("    python3 frinkloop.py new <project-name>\n")
 
 
 # ── Feature 6: new (brief builder) ───────────────────────────────────────────
 
 def cmd_new(args):
-    """Interactive project creation with brief builder."""
+    """Interactive project creation with LLM-powered brief builder."""
     project_name = args.project
     if not project_name:
         project_name = _prompt("Project name").strip().replace(" ", "-")
@@ -178,60 +215,46 @@ def cmd_new(args):
 
     _banner(f"New Project — {project_name}")
 
-    # --- Brief builder ---
-    print("Answer a few questions to generate your BRIEF.md.\n")
+    # --- LLM-powered brief generator ---
+    from core.brief_generator import generate_brief_interactive
+    brief, answers = generate_brief_interactive(project_name, _prompt, _prompt_multiline, _prompt_list, _confirm)
 
-    what = _prompt_multiline("What are you building?")
-    requirements = _prompt_list("Key requirements (one per line, blank to finish)")
-    tech = _prompt("Tech preferences (leave blank for AI to decide)", default="")
-    done_looks_like = _prompt_multiline('What does "done" look like?')
-    out_of_scope = _prompt_multiline("Out of scope (leave blank if nothing)", allow_empty=True)
-
-    # Load default stack from env
-    default_stack = os.getenv("DEFAULT_STACK", "TypeScript")
-    if not tech:
-        tech = default_stack
+    if not brief:
+        print("\n⚠ Brief generation skipped. You can create the project manually.")
+        sys.exit(1)
 
     # GitHub repo?
     gh_token = os.getenv("GITHUB_TOKEN", "")
     github_repo_url = ""
     if gh_token:
-        create_repo = _confirm(f"Create GitHub repo github.com/<you>/{project_name}?")
+        create_repo = _confirm(f"\nCreate GitHub repo github.com/<you>/{project_name}?")
         if create_repo:
-            github_repo_url = _create_github_repo(project_name, gh_token, what[:100])
+            github_repo_url = _create_github_repo(project_name, gh_token, brief[:100])
 
-    # Create project folder from template
+    # Select the best-matching starter template
     import shutil
-    template_path = ROOT / "projects" / "_template"
+    _TEMPLATE_MAP = {
+        "CLI tool (command-line utility)": "cli-tool",
+        "REST API / Backend service":      "api",
+        "Web app (frontend)":              "web-app",
+        "scraper":                         "scraper",
+    }
+    raw_idea = answers.get("raw_idea", "")
+    template_name = _TEMPLATE_MAP.get(raw_idea, "_template")
+    template_path = ROOT / "templates" / template_name
+    if not template_path.exists():
+        template_path = ROOT / "projects" / "_template"
     shutil.copytree(str(template_path), str(project_path))
 
     # Write BRIEF.md
-    req_lines = "\n".join(f"- {r}" for r in requirements) if requirements else "- (none specified)"
-    brief = f"""# Project Brief — {project_name}
-
-## What to build
-{what}
-
-## Key requirements
-{req_lines}
-
-## Tech preferences
-{tech if tech else "AI will decide based on the requirements"}
-
-## What "done" looks like
-{done_looks_like}
-
-## Out of scope
-{out_of_scope if out_of_scope else "(nothing excluded)"}
-"""
-    (project_path / "BRIEF.md").write_text(brief)
+    (project_path / "BRIEF.md").write_text(brief + "\n")
 
     # Init git and optionally link remote
     import subprocess
     subprocess.run(["git", "init", "-q"], cwd=project_path, check=True)
     subprocess.run(["git", "add", "."], cwd=project_path, check=True)
     subprocess.run(
-        ["git", "commit", "-q", "-m", f"chore: initialize {project_name} from Agent OS template"],
+        ["git", "commit", "-q", "-m", f"chore: initialize {project_name} from FrinkLoop template"],
         cwd=project_path, check=True,
     )
     if github_repo_url:
@@ -253,18 +276,18 @@ def cmd_new(args):
         "milestone_current": None,
         "started_at": datetime.utcnow().isoformat() + "Z",
         "last_activity": datetime.utcnow().isoformat() + "Z",
-        "notes": what[:120],
+        "notes": brief[:120],
     }
     (ROOT / "memory" / "state.json").write_text(json.dumps(state, indent=2))
 
     print()
     print(f"  ✓ Project created:  projects/{project_name}/")
-    print(f"  ✓ BRIEF.md written")
+    print(f"  ✓ Comprehensive BRIEF.md written")
     if github_repo_url:
         print(f"  ✓ GitHub repo:      {github_repo_url}")
     print()
     print("  Start the build:")
-    print(f"    python agentos.py run {project_name}\n")
+    print(f"    python3 frinkloop.py run {project_name}\n")
 
 
 # ── Feature run ───────────────────────────────────────────────────────────────
@@ -275,7 +298,7 @@ def cmd_run(args):
     _check_env()
 
     from core.loop import run_loop
-    run_loop(project_name, dry_run=args.dry_run)
+    run_loop(project_name, dry_run=args.dry_run, no_hitl=getattr(args, "no_hitl", False))
 
 
 # ── Feature 4: watch ─────────────────────────────────────────────────────────
@@ -322,7 +345,7 @@ def cmd_status(args):
         tasks_path = ROOT / "memory" / "tasks.json"
         state_path = ROOT / "memory" / "state.json"
 
-    _banner("Agent OS — Status")
+    _banner("FrinkLoop — Status")
 
     if state_path.exists():
         state = json.loads(state_path.read_text())
@@ -432,7 +455,7 @@ def _require_project(args) -> str:
         projects = [p.name for p in (ROOT / "projects").iterdir()
                     if p.is_dir() and p.name != "_template"]
         if not projects:
-            print("No projects found. Run: python agentos.py new <name>")
+            print("No projects found. Run: python3 frinkloop.py new <name>")
             sys.exit(1)
         if len(projects) == 1:
             return projects[0]
@@ -450,8 +473,9 @@ def _require_project(args) -> str:
 
 
 def _check_env():
-    if not os.getenv("ANTHROPIC_API_KEY"):
-        print("ANTHROPIC_API_KEY is not set. Run: python agentos.py init")
+    issues = validate_llm_env()
+    if issues:
+        print(f"{issues[0]}. Run: python3 frinkloop.py init")
         sys.exit(1)
 
 
@@ -473,7 +497,7 @@ def _create_github_repo(name: str, token: str, description: str) -> str:
         headers={
             "Authorization": f"token {token}",
             "Content-Type": "application/json",
-            "User-Agent": "agentos",
+            "User-Agent": "frinkloop",
         },
         method="POST",
     )

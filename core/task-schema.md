@@ -4,45 +4,47 @@
 
 {
   "project": "project-name",
-  "milestone_current": 1,
+  "milestone_current": "M1",
   "milestones": [
     {
-      "id": 1,
+      "id": "M1",
       "name": "Milestone name",
       "description": "What done looks like",
-      "status": "pending | in-progress | complete"
-    }
-  ],
-  "tasks": [
-    {
-      "id": "T001",
-      "milestone": 1,
-      "title": "Short imperative title",
-      "description": "Detailed description of what to build",
-      "agent": "dev | qa | critic | docs | researcher",
-      "depends_on": ["T000"],
-      "status": "pending | in-progress | done | blocked | qa-failed | changes-required | approved",
-      "attempts": 0,
-      "output": "",
-      "created_at": "ISO timestamp",
-      "updated_at": "ISO timestamp"
+      "status": "pending | in_progress | done | blocked",
+      "tasks": [
+        {
+          "id": "T001",
+          "milestone": "M1",
+          "type": "research | code | test | review | docs | plan",
+          "agent": "orchestrator | researcher | developer | qa | critic | docs",
+          "input": "Detailed description of what to build",
+          "acceptance": "What success looks like",
+          "depends_on": ["T000"],
+          "status": "pending | in_progress | done | blocked | failed | skipped",
+          "fail_count": 0,
+          "critic_rejections": 0,
+          "output": "",
+          "result_summary": "",
+          "last_error": "",
+          "created_at": "ISO timestamp",
+          "updated_at": "ISO timestamp"
+        }
+      ]
     }
   ]
 }
 
 ## Status Flow
 
-pending → in-progress → done → qa-failed OR approved
-                              ↓
-                         changes-required → in-progress (fix loop)
-
-blocked → (Orchestrator reassigns or escalates)
+pending → in_progress → done
+        ↘
+         blocked | failed | skipped
 
 ## Task ID Convention
 T001, T002, T003... per project
 Fix tasks get suffix: T001-fix1, T001-fix2
 
 ## Dependency Rules
-- A task cannot start until all depends_on tasks are "approved"
+- A task cannot start until all depends_on tasks are "done"
 - Tasks with no depends_on can run in parallel
-- Orchestrator decides parallelism based on available context
+- Legacy top-level `tasks[]` input is normalized into the nested milestone format
