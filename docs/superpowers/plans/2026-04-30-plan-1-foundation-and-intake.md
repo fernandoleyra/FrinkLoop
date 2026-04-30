@@ -235,7 +235,7 @@ Create `tests/plan-1/test_dev_deps.bats`:
 }
 
 @test "ajv-cli is callable" {
-  run npx --no-install ajv --version
+  run npx --no-install ajv help
   [ "$status" -eq 0 ]
 }
 
