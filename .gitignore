@@ -51,3 +51,11 @@ Thumbs.db
 ziqifFWO
 .history/
 
+# ── Worktrees (Subagent-Driven Development) ──────────────────────────────────
+.worktrees/
+
+# ── Node (plugin dev) ─────────────────────────────────────────────────────────
+node_modules/
+
+# ── FrinkLoop project state (when scaffolded inside this repo) ───────────────
+.frinkloop/
