@@ -34,3 +34,13 @@
   grep -q "spec.md" plugin/agents/planner.md
   grep -q "tasks.json" plugin/agents/planner.md
 }
+
+@test "builder agent has real body and emphasizes commit-per-task" {
+  ! grep -q "Placeholder. Will be implemented" plugin/agents/builder.md
+  grep -q "git commit" plugin/agents/builder.md
+}
+
+@test "qa agent has real body and writes qa.json" {
+  ! grep -q "Placeholder. Will be implemented" plugin/agents/qa.md
+  grep -q "qa.json" plugin/agents/qa.md
+}
