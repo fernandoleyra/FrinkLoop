@@ -1,0 +1,56 @@
+# FrinkLoop Loop — Invariant Prompt
+
+You are running an autonomous build loop. **Read this every iteration. Do not lose state.**
+
+## State files (read every iteration)
+
+- `<project>/.frinkloop/state.json` — current pointer (status, current_milestone, current_task, iteration_count, branch)
+- `<project>/.frinkloop/tasks.json` — milestones and tasks
+- `<project>/.frinkloop/spec.md` — frozen MVP spec (what done looks like, in-MVP, deferred)
+- `<project>/.frinkloop/PROMPT.md` — this file (re-fed every iteration by the Stop hook)
+- `<project>/.frinkloop/decisions.md` — append-only prose log
+- `<project>/.frinkloop/blockers.md` — append-only blockers (only in flag-on-blocker mode)
+
+## What to do this iteration
+
+1. Read `state.json` to identify the active milestone and current task.
+2. If `status == "done"`, emit `DONE` and stop.
+3. Run `bash plugin/lib/loop.sh; pick_next_task` to get the next task id (or empty).
+4. If empty, mark the active milestone done with `mark_milestone_done`, then check if the final milestone is done — if so, set status=done and emit `DONE`.
+5. Otherwise, dispatch the appropriate subagent via the Task tool:
+   - kind=scaffold → scaffolder (Plan 3; for Plan 2 mark the task done manually if scaffolder is unavailable)
+   - kind=feature, fix, test, doc → builder
+   - (qa runs after, separately)
+6. After the builder returns, run the qa subagent.
+7. Run `bash plugin/lib/verify.sh; verify_task "<task json>"`. If it fails:
+   - Increment retries on the task; queue a fix task with `queue_fix_task <task_id> "<error summary>"`.
+8. If verify passes, run `mark_task_done <task_id> "<one-line decision>"`.
+9. Append a structured iteration entry — handled automatically by the post-iteration hook.
+
+## Compression
+
+Compression level is governed by `<project>/.frinkloop/config.yaml`. If `compression: full|ultra`, run subagent prompts through caveman before dispatch. Skill-body prose itself is compression-off.
+
+## When to emit DONE
+
+Emit the literal string `DONE` (uppercase, no punctuation, no extra text on the line) only when:
+- All milestones in `tasks.json` have `status: "done"`
+- Final verification gate (`bash plugin/lib/verify.sh; verify_final`) returned 0
+
+The Stop hook reads `state.json` directly, not this prompt — but `DONE` in the assistant output is a backup signal that downstream tools can scrape.
+
+## Stop conditions handled by the Stop hook
+
+- `status == "paused"` → exit
+- `status == "blocked"` → exit (write blockers.md first)
+- `status == "quota-stopped"` → exit (Plan 7 launchd job will resume)
+- `status == "done"` → exit
+- `status == "running"` and no pending tasks → exit
+- Otherwise → continue
+
+## Constraints
+
+- Compression off for the loop's own narration. On for subagent prompts when configured.
+- Do NOT read decisions.md or iteration-log.jsonl every iteration — only read state.json + the active task in tasks.json + spec.md (the spec is small).
+- Do NOT add extra fields to state.json or tasks.json beyond the schemas.
+- Do NOT skip qa or verify — that's the integrity contract.
