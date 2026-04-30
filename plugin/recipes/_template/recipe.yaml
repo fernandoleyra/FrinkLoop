@@ -1,0 +1,5 @@
+schema_version: 1
+id: _template
+name: Recipe template — copy this for new recipes
+description: Empty starter — duplicate this folder, rename, fill in apply.sh
+applies_to: ["*"]

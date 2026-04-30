@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "FrinkLoop recipe",
+  "type": "object",
+  "required": ["schema_version", "id", "name", "applies_to"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "type": "integer", "const": 1 },
+    "id": { "type": "string", "minLength": 1 },
+    "name": { "type": "string", "minLength": 1 },
+    "description": { "type": "string" },
+    "applies_to": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "enum": [
+          "web-fullstack", "spa-static", "marketing-landing",
+          "node-api", "python-api", "node-cli", "python-cli",
+          "mobile-expo", "browser-extension", "discord-bot", "slack-bot",
+          "*"
+        ]
+      }
+    },
+    "depends_on": { "type": "array", "items": { "type": "string" } },
+    "post_apply_check": { "type": "string" }
+  }
+}
