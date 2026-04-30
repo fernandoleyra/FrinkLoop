@@ -663,7 +663,7 @@ log_iteration() {
   local payload="$1"
   local ts
   ts=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-  echo "$payload" | jq --arg ts "$ts" '. + {ts: $ts}' >> "$FRINKLOOP_DIR/iteration-log.jsonl"
+  echo "$payload" | jq -c --arg ts "$ts" '. + {ts: $ts}' >> "$FRINKLOOP_DIR/iteration-log.jsonl"
 }
 ```
 
