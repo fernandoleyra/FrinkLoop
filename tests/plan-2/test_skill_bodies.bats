@@ -28,3 +28,9 @@
   grep -q "builder" plugin/skills/mvp-loop/SKILL.md
   grep -q "qa" plugin/skills/mvp-loop/SKILL.md
 }
+
+@test "planner agent has real body and references spec.md + tasks.json" {
+  ! grep -q "Placeholder. Will be implemented" plugin/agents/planner.md
+  grep -q "spec.md" plugin/agents/planner.md
+  grep -q "tasks.json" plugin/agents/planner.md
+}
