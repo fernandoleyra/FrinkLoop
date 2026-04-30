@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "FrinkLoop qa.json (per-task verification artifact)",
+  "type": "object",
+  "required": ["schema_version", "task_id", "kind", "outcome", "ts"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "type": "integer", "const": 1 },
+    "task_id": { "type": "string" },
+    "kind": { "type": "string", "enum": ["scaffold", "feature", "test", "fix", "doc", "deploy", "screenshot"] },
+    "outcome": { "type": "string", "enum": ["pass", "fail"] },
+    "ts": { "type": "string" },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "status"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "type": "string" },
+          "status": { "type": "string", "enum": ["pass", "fail", "skip"] },
+          "output_excerpt": { "type": "string" }
+        }
+      }
+    },
+    "error_summary": { "type": "string" }
+  }
+}
