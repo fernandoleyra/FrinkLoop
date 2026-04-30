@@ -235,7 +235,7 @@ Create `tests/plan-1/test_dev_deps.bats`:
 }
 
 @test "ajv-cli is callable" {
-  run npx --no-install ajv --version
+  run npx --no-install ajv help
   [ "$status" -eq 0 ]
 }
 
@@ -663,7 +663,7 @@ log_iteration() {
   local payload="$1"
   local ts
   ts=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-  echo "$payload" | jq --arg ts "$ts" '. + {ts: $ts}' >> "$FRINKLOOP_DIR/iteration-log.jsonl"
+  echo "$payload" | jq -c --arg ts "$ts" '. + {ts: $ts}' >> "$FRINKLOOP_DIR/iteration-log.jsonl"
 }
 ```
 
@@ -1296,6 +1296,8 @@ exclusions:
 ```
 
 - [ ] **Step 5: Implement `render.sh`**
+
+> **Implementation note (2026-04-30):** The `awk` approach below cannot carry literal newlines in `-v` variables, which breaks multi-line substitutions for `DONE_CRITERIA`, `IN_MVP`, `PHASE_2`, and `EXCLUSIONS_YAML`. The actual `render.sh` is a thin bash wrapper that invokes a Python heredoc to do the substitution. The shell interface (`render.sh <answers.json> <output_dir>`) is preserved exactly. See the committed file at `plugin/skills/intake-chat/lib/render.sh` for the working implementation.
 
 Create `plugin/skills/intake-chat/lib/render.sh`:
 

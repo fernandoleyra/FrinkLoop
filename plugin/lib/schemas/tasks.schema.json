@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "FrinkLoop tasks.json",
+  "type": "object",
+  "required": ["schema_version", "milestones"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "type": "integer", "const": 1 },
+    "milestones": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "status", "tasks"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "status": { "type": "string", "enum": ["pending", "in-progress", "done", "blocked"] },
+          "branch": { "type": "string" },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "title", "status", "kind"],
+              "additionalProperties": false,
+              "properties": {
+                "id": { "type": "string" },
+                "title": { "type": "string" },
+                "status": { "type": "string", "enum": ["pending", "in-progress", "done", "blocked", "deferred"] },
+                "kind": { "type": "string", "enum": ["scaffold", "feature", "test", "fix", "doc", "deploy", "screenshot"] },
+                "depends_on": { "type": "array", "items": { "type": "string" } },
+                "defer_to_phase_2": { "type": "boolean" },
+                "retries": { "type": "integer", "minimum": 0 },
+                "notes": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

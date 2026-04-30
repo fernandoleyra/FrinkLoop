@@ -1,0 +1,13 @@
+{
+  "name": "frinkloop-dev",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Dev dependencies for FrinkLoop plugin development and tests",
+  "scripts": {
+    "test": "bats tests/"
+  },
+  "devDependencies": {
+    "ajv-cli": "^5.0.0",
+    "ajv-formats": "^3.0.1"
+  }
+}

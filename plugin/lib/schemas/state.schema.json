@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "FrinkLoop state.json",
+  "type": "object",
+  "required": ["schema_version", "iteration_count", "branch", "status"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "type": "integer", "const": 1 },
+    "current_milestone": { "type": ["string", "null"] },
+    "current_task": { "type": ["string", "null"] },
+    "iteration_count": { "type": "integer", "minimum": 0 },
+    "branch": { "type": "string" },
+    "last_verified_sha": { "type": ["string", "null"] },
+    "status": {
+      "type": "string",
+      "enum": ["idle", "running", "paused", "blocked", "quota-stopped", "done"]
+    }
+  }
+}
