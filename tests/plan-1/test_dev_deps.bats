@@ -8,7 +8,7 @@
 }
 
 @test "ajv-cli is callable" {
-  run npx ajv help
+  run npx --no-install ajv help
   [ "$status" -eq 0 ]
 }
 
