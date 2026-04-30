@@ -49,3 +49,11 @@ teardown() {
   run npx --no-install ajv validate -s plugin/lib/schemas/state.schema.json -d "$FRINKLOOP_DIR/state.json" --strict=false
   [ "$status" -eq 0 ]
 }
+
+@test "state_increment_iteration stamps last_iteration_at" {
+  state_init main
+  state_increment_iteration
+  run jq -r '.last_iteration_at' "$FRINKLOOP_DIR/state.json"
+  [ "$status" -eq 0 ]
+  [ "$output" != "null" ]
+}
