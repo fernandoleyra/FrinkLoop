@@ -54,6 +54,37 @@ If `config.yaml` has `hitl: milestones`, after each milestone is marked done, se
 
 Read `config.yaml`. If `compression ∈ {lite, full, ultra}`, prepend a caveman directive to subagent prompts when dispatching. Loop narration itself stays uncompressed.
 
+## Parallel fan-out (Plan 4)
+
+When `pick_parallel_batch 10` returns ≥2 task ids, the loop dispatches multiple builder subagents simultaneously via the Task tool, capped at 10 per Claude Code limit.
+
+### Steps
+
+1. Source `plugin/lib/worktrees.sh`.
+2. For each task id in the batch:
+   - `create_task_worktree <id>` → returns the absolute worktree path
+   - Set `status: in-progress` on the task in tasks.json
+3. Dispatch all builders in a SINGLE assistant message with multiple Task tool calls. Each builder receives:
+   - The task JSON
+   - The absolute worktree path (its only writable directory)
+   - The branch name (`frinkloop/task-<id>`)
+   - Compression directive (if config says so)
+4. After all builders complete (Claude Code awaits all parallel Task calls before continuing):
+   - **Aggregator step:** for each completed task, read ONLY the artifact / commit sha. Do NOT read the subagent transcript.
+   - Merge each `frinkloop/task-<id>` branch back into the project's main branch in id-sorted order, fast-forward where possible. Conflicts → mark the task BLOCKED.
+   - Run qa for each. Run `verify_task` for each.
+   - On verify pass: `mark_task_done <id>` and `remove_task_worktree <id>`.
+   - On verify fail: `queue_fix_task <id> "<error>"`. Don't remove the worktree (next iteration may retry).
+
+### When to fall back to sequential
+
+- Batch size 1 → use the existing sequential path (skip worktree creation; build in main project tree as before)
+- Any task without `paths_touched` set → that task runs alone (`pick_parallel_batch` already enforces this rule)
+
+### Cleanup
+
+After every milestone completes, run `prune_task_worktrees` to free disk.
+
 ## What this skill is NOT
 
 - Not parallel — that's Plan 4
