@@ -98,6 +98,53 @@ queue_fix_task() {
   echo "$next_id"
 }
 
+# Returns up to MAX task ids that can run in parallel — pending, deps-satisfied, paths-disjoint.
+# Tasks with no `paths_touched` are treated as non-conflicting (they join the batch freely).
+# Tasks whose paths_touched overlap with an already-taken path are skipped.
+# Greedy: walks pending tasks in order and takes each eligible one.
+pick_parallel_batch() {
+  local max="${1:-10}"
+  local mid
+  mid=$(active_milestone)
+  if [ -z "$mid" ]; then
+    return 0
+  fi
+
+  jq -r --arg mid "$mid" --argjson max "$max" '
+    .milestones[] | select(.id == $mid) | .tasks as $all
+    | ($all | map(select(.status == "pending")) | map(.id)) as $pending_ids
+    | ($all | map(select(.status == "pending"))) as $pending
+    | $pending
+    | reduce .[] as $t (
+        {"batch": [], "claimed": []};
+        if (.batch | length) >= $max then
+          .
+        else
+          # Check deps satisfied: all depends_on resolved (not in pending)
+          (($t.depends_on // []) | map(. as $d | $pending_ids | index($d)) | all(. == null)) as $deps_ok
+          # Paths for this task
+          | ($t.paths_touched // []) as $tp
+          # Save claimed array for use in map context
+          | .claimed as $claimed
+          # Check path conflict: if task has paths, check none overlap with claimed
+          | (
+              ($tp | length) == 0
+              or ($tp | map(. as $p | $claimed | index($p)) | all(. == null))
+            ) as $paths_ok
+          | if $deps_ok and $paths_ok then
+              {
+                "batch": (.batch + [$t.id]),
+                "claimed": (.claimed + $tp)
+              }
+            else
+              .
+            end
+        end
+      )
+    | .batch | join(" ")
+  ' "$FRINKLOOP_DIR/tasks.json"
+}
+
 # Mark a milestone done if and only if all its tasks are done.
 # Returns 1 (no-op) if any task is still not done.
 mark_milestone_done() {
