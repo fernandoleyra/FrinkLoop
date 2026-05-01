@@ -1,42 +1,6 @@
 # ── Secrets ───────────────────────────────────────────────────────────────────
 .env
 
-# ── Personal projects ─────────────────────────────────────────────────────────
-# All user projects are excluded. Only the _template is published.
-projects/*
-!projects/_template/
-!projects/_template/**
-
-# ── Runtime memory (project-specific state, never committed at root level) ────
-memory/state.json
-memory/tasks.json
-memory/decisions.md
-memory/blockers.md
-memory/qa_report.md
-memory/archive/
-memory/agent_logs/
-memory/research/
-
-# ── Logs ─────────────────────────────────────────────────────────────────────
-logs/*
-!logs/.gitkeep
-
-# ── Python ────────────────────────────────────────────────────────────────────
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-*.egg-info/
-dist/
-build/
-.venv/
-venv/
-env/
-.mypy_cache/
-.pytest_cache/
-.ruff_cache/
-
 # ── OS ────────────────────────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
@@ -46,16 +10,22 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
-
-# ── Stray artifacts ───────────────────────────────────────────────────────────
-ziqifFWO
 .history/
 
-# ── Worktrees (Subagent-Driven Development) ──────────────────────────────────
-.worktrees/
-
-# ── Node (plugin dev) ─────────────────────────────────────────────────────────
+# ── Node (plugin dev tooling) ────────────────────────────────────────────────
 node_modules/
 
-# ── FrinkLoop project state (when scaffolded inside this repo) ───────────────
+# ── Python (only if a contributor uses a local venv) ─────────────────────────
+__pycache__/
+*.pyc
+.venv/
+venv/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# ── Worktrees (subagent-driven development) ──────────────────────────────────
+.worktrees/
+
+# ── FrinkLoop project state (when scaffolded inside this repo for testing) ──
 .frinkloop/

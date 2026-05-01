@@ -1,1 +1,0 @@
-# FrinkLoop core package
