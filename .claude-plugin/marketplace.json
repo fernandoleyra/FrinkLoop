@@ -7,8 +7,12 @@
   "plugins": [
     {
       "name": "frinkloop",
-      "source": "./plugin",
-      "description": "Autonomous MVP development for Claude Code: intake → scaffold → build → verify → deliver."
+      "description": "Autonomous MVP development for Claude Code: intake → scaffold → build → verify → deliver.",
+      "source": {
+        "source": "github",
+        "repo": "fernandoleyra/FrinkLoop",
+        "path": "plugin"
+      }
     }
   ]
 }
