@@ -1,20 +1,20 @@
 #!/usr/bin/env bats
 
 @test "plugin.json exists and is valid JSON" {
-  [ -f plugin/plugin.json ]
-  run jq . plugin/plugin.json
+  [ -f plugin/.claude-plugin/plugin.json ]
+  run jq . plugin/.claude-plugin/plugin.json
   [ "$status" -eq 0 ]
 }
 
 @test "plugin.json has required fields" {
-  run jq -r '.name' plugin/plugin.json
+  run jq -r '.name' plugin/.claude-plugin/plugin.json
   [ "$output" = "frinkloop" ]
 
-  run jq -r '.version' plugin/plugin.json
+  run jq -r '.version' plugin/.claude-plugin/plugin.json
   [ "$status" -eq 0 ]
   [ -n "$output" ]
 
-  run jq -r '.description' plugin/plugin.json
+  run jq -r '.description' plugin/.claude-plugin/plugin.json
   [ "$status" -eq 0 ]
   [ -n "$output" ]
 }
