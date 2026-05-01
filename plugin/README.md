@@ -10,7 +10,7 @@ FrinkLoop turns a 4-question intake conversation into a deploy-ready MVP with a 
 
 ```bash
 claude plugin marketplace add fernandoleyra/FrinkLoop
-claude plugin install frinkloop@frinkloop
+claude plugin install frinkloop
 ```
 
 ## Quick start

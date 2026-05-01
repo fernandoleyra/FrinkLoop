@@ -30,7 +30,7 @@ In Claude Code, run two commands:
 
 ```
 /plugin marketplace add fernandoleyra/FrinkLoop
-/plugin install frinkloop@frinkloop
+/plugin install frinkloop
 ```
 
 That's it. Type `/plugin list` to confirm.
