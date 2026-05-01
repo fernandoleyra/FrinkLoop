@@ -1,5 +1,5 @@
 {
-  "name": "frinkloop-plugins",
+  "name": "frinkloop",
   "description": "FrinkLoop — autonomous MVP development plugin for Claude Code.",
   "owner": {
     "name": "Fernando Leyra"
