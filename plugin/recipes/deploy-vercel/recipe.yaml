@@ -1,0 +1,6 @@
+schema_version: 1
+id: deploy-vercel
+name: Deploy to Vercel
+description: Add a vercel.json with framework auto-detection. Does not create a Vercel project — the human runs `vercel` first time.
+applies_to: [web-fullstack, spa-static, marketing-landing]
+post_apply_check: "test -f vercel.json"
