@@ -1,6 +1,6 @@
 {
   "name": "frinkloop",
-  "version": "0.1.0",
+  "version": "0.9.0",
   "description": "Autonomous MVP development for Claude Code: intake → scaffold → build → verify → deliver. Token-friendly, parallel, learns locally.",
   "author": "Fernando Leyra",
   "license": "MIT",

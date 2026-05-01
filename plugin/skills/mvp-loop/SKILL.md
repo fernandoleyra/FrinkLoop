@@ -50,9 +50,21 @@ Read `config.yaml` at start. If `tdd: true` (commercial mode default), every `ki
 
 If `config.yaml` has `hitl: milestones`, after each milestone is marked done, set `status=paused` and emit a one-line summary. The Stop hook will exit. The user runs `/frinkloop resume <project>` to continue.
 
-## Compression
+## Compression (Plan 9)
 
 Read `config.yaml`. If `compression ∈ {lite, full, ultra}`, prepend a caveman directive to subagent prompts when dispatching. Loop narration itself stays uncompressed.
+
+```bash
+source plugin/lib/caveman.sh
+compression=$(read_compression_level)
+builder_prompt=$(caveman_prefix "$compression" "$raw_builder_prompt")
+# Then dispatch the builder subagent with builder_prompt
+```
+
+The three levels:
+- `lite` — terse prose, no filler
+- `full` — caveman-style telegraphic
+- `ultra` — 1-3 word answers, abbreviate everything
 
 ## Parallel fan-out (Plan 4)
 
