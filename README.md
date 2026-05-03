@@ -13,7 +13,7 @@
   <a href="https://github.com/fernandoleyra/FrinkLoop/stargazers"><img src="https://img.shields.io/github/stars/fernandoleyra/FrinkLoop?style=flat-square" alt="Stars"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square" alt="MIT License"></a>
   <img src="https://img.shields.io/badge/Claude%20Code-Plugin-8B5CF6?style=flat-square" alt="Claude Code Plugin">
-  <img src="https://img.shields.io/badge/version-0.1.0-orange?style=flat-square" alt="Version">
+  <img src="https://img.shields.io/badge/version-0.1.1-orange?style=flat-square" alt="Version">
 </p>
 
 ---

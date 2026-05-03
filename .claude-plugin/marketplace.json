@@ -8,11 +8,7 @@
     {
       "name": "frinkloop",
       "description": "Autonomous MVP development for Claude Code: intake → scaffold → build → verify → deliver.",
-      "source": {
-        "source": "url",
-        "url": "https://github.com/fernandoleyra/FrinkLoop.git",
-        "path": "plugin"
-      }
+      "source": "./plugin"
     }
   ]
 }
