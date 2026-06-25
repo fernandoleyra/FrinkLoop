@@ -31,7 +31,8 @@
                 "depends_on": { "type": "array", "items": { "type": "string" } },
                 "defer_to_phase_2": { "type": "boolean" },
                 "retries": { "type": "integer", "minimum": 0 },
-                "notes": { "type": "string" }
+                "notes": { "type": "string" },
+                "paths_touched": { "type": "array", "items": { "type": "string" } }
               }
             }
           }

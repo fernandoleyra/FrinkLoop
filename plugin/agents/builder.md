@@ -38,3 +38,15 @@ description: FrinkLoop builder — implements ONE task. Reads task spec, edits f
 
 ## Failure handling
 If you can't make progress, return with status `BLOCKED` and a one-line reason. The mvp-loop will queue a fix task or escalate.
+
+## Worktree contract (Plan 4)
+
+When the loop dispatches you with a `WORKTREE_PATH` parameter, you operate inside that directory only:
+
+- `cd "$WORKTREE_PATH"` is your first step
+- All edits and commits happen in this worktree
+- Your branch is `frinkloop/task-<id>` — you don't choose it, the orchestrator created it
+- Don't merge anything yourself. The orchestrator does the fast-forward back to the project's main branch.
+- Don't touch other worktrees or the main project tree (`$PROJECT_DIR` outside the worktree).
+
+If `WORKTREE_PATH` is unset, you're in single-task mode — operate directly in `$PROJECT_DIR` as before (Plan 2 behavior).
