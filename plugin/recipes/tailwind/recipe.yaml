@@ -1,0 +1,6 @@
+schema_version: 1
+id: tailwind
+name: Tailwind CSS
+description: Install Tailwind CSS, init config, add directives to main CSS entrypoint.
+applies_to: [web-fullstack, spa-static, marketing-landing]
+post_apply_check: "test -f tailwind.config.js -o -f tailwind.config.ts"

@@ -1,0 +1,69 @@
+schema_version: 1
+templates:
+  - id: next-saas-starter
+    platform: web-fullstack
+    name: "Next.js SaaS Starter (Vercel)"
+    giget: "gh:nextjs/saas-starter"
+    default: true
+    notes: "Drizzle + Tailwind + shadcn baked in. Mark Stripe paths as Phase 2."
+
+  - id: vite-shadcn
+    platform: spa-static
+    name: "Vite + React + shadcn/ui"
+    giget: "gh:shadcn-ui/vite-template"
+    default: true
+
+  - id: astroship
+    platform: marketing-landing
+    name: "Astroship (Astro + Tailwind)"
+    giget: "gh:surjithctly/astroship"
+    default: true
+
+  - id: hono-openapi
+    platform: node-api
+    name: "Hono + OpenAPI starter"
+    giget: "gh:w3cj/hono-open-api-starter"
+    default: true
+
+  - id: fastapi-ai-prod
+    platform: python-api
+    name: "FastAPI AI Production Template"
+    giget: "gh:wahyudesu/Fastapi-AI-Production-Template"
+    default: true
+
+  - id: citty-playground
+    platform: node-cli
+    name: "Citty (UnJS) playground"
+    giget: "gh:unjs/citty/playground"
+    default: true
+
+  - id: uvinit
+    platform: python-cli
+    name: "uvinit (Typer + uv)"
+    giget: "gh:jlevy/uvinit"
+    default: true
+    notes: "Invoke with --data flags to skip interactive prompts."
+
+  - id: expo-obytes
+    platform: mobile-expo
+    name: "Expo Obytes Starter"
+    giget: "gh:obytes/react-native-template-obytes"
+    default: true
+
+  - id: wxt-extension
+    platform: browser-extension
+    name: "WXT browser extension starter"
+    giget: "gh:poweroutlet2/browser-extension-starter"
+    default: true
+
+  - id: discord-bot-ts
+    platform: discord-bot
+    name: "Discord Bot TypeScript Template"
+    giget: "gh:KevinNovak/Discord-Bot-TypeScript-Template"
+    default: true
+
+  - id: slack-bolt-ts
+    platform: slack-bot
+    name: "Slack Bolt TypeScript starter"
+    giget: "gh:slack-samples/bolt-ts-starter-template"
+    default: true

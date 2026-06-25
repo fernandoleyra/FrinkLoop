@@ -1,0 +1,6 @@
+schema_version: 1
+id: playwright
+name: Playwright (headless browser, used by FrinkLoop screenshot pipeline)
+description: Install playwright + chromium. Add a basic config so screenshot-capturer can run.
+applies_to: [web-fullstack, spa-static, marketing-landing]
+post_apply_check: "test -f playwright.config.ts -o -f playwright.config.js"
