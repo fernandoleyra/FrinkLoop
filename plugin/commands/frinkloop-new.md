@@ -8,4 +8,4 @@ Invoke the `intake-chat` skill to walk the user through the 4-question YC-shaped
 
 After the intake skill finishes:
 1. Confirm scaffold path with the user (default: `~/Developer/<project-slug>`).
-2. Hand off to the `mvp-loop` skill (Plan 2). For now (Plan 1), stop after intake and tell the user: "Spec written. Build loop arrives in Plan 2."
+2. Invoke the `mvp-loop` skill to begin building.

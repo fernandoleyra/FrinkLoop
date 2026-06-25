@@ -1,11 +1,39 @@
 {
   "name": "frinkloop",
-  "version": "0.1.1",
-  "description": "Autonomous MVP development for Claude Code: intake → scaffold → build → verify → deliver. Token-friendly, parallel, learns locally.",
+  "version": "1.0.0",
+  "description": "Autonomous MVP development for Claude Code. A 4-question intake conversation becomes a deploy-ready MVP — code, README, landing page, screenshots, and a Phase-2 plan — fully autonomously. Plan → scaffold → build → verify → deliver. No human in the loop after intake.",
   "author": {
-    "name": "Fernando Leyra"
+    "name": "Fernando Leyra",
+    "email": "fernando@family.agency"
   },
   "license": "MIT",
   "repository": "https://github.com/fernandoleyra/FrinkLoop",
-  "keywords": ["autonomous", "mvp", "scaffolder", "claude-code", "agent"]
+  "homepage": "https://github.com/fernandoleyra/FrinkLoop#readme",
+  "keywords": [
+    "autonomous",
+    "mvp",
+    "scaffolder",
+    "build-in-public",
+    "vibe-coding",
+    "no-code",
+    "claude-code",
+    "agent"
+  ],
+  "engines": {
+    "claude-code": ">=1.0.0"
+  },
+  "skills": [
+    "skills/intake-chat",
+    "skills/mvp-loop",
+    "skills/design-system-builder"
+  ],
+  "commands": [
+    "commands/frinkloop.md",
+    "commands/frinkloop-new.md",
+    "commands/frinkloop-resume.md",
+    "commands/frinkloop-status.md",
+    "commands/frinkloop-pause.md",
+    "commands/frinkloop-ds.md",
+    "commands/frinkloop-deliver.md"
+  ]
 }

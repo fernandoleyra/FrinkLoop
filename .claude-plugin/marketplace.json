@@ -1,13 +1,15 @@
 {
   "name": "frinkloop",
+  "version": "1.0.0",
   "description": "FrinkLoop — autonomous MVP development plugin for Claude Code.",
   "owner": {
-    "name": "Fernando Leyra"
+    "name": "Fernando Leyra",
+    "github": "fernandoleyra"
   },
   "plugins": [
     {
       "name": "frinkloop",
-      "description": "Autonomous MVP development for Claude Code: intake → scaffold → build → verify → deliver.",
+      "description": "Autonomous MVP development: intake → scaffold → build → verify → deliver. No human in the loop after the 4-question intake.",
       "source": "./plugin"
     }
   ]
