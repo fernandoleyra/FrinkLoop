@@ -85,12 +85,36 @@ When `pick_parallel_batch 10` returns ≥2 task ids, the loop dispatches multipl
 
 After every milestone completes, run `prune_task_worktrees` to free disk.
 
+## Local learning (Plan 6)
+
+After each task outcome, emit a structured learning event and update the profile:
+
+```bash
+source plugin/lib/learning.sh
+# on success:
+emit_event task_done "$PROJECT_NAME" "$task_id" "$task_kind" "$duration_s"
+profile_increment done
+# on qa failure:
+emit_event qa_fail "$PROJECT_NAME" "$task_id" "$task_kind" 0
+profile_increment failed
+# on blocker:
+emit_event blocker_opened "$PROJECT_NAME" "$task_id" "$task_kind" 0
+profile_increment_blockers
+# after each milestone:
+emit_event milestone_done "$PROJECT_NAME" "" "" 0
+profile_milestone_done
+# at project completion:
+emit_event project_done "$PROJECT_NAME" "" "" 0
+consolidate_profiles
+```
+
+Call `profile_init "$PROJECT_NAME"` once at loop start. Call `profile_set_template` and `profile_add_recipe` when the scaffolder applies them.
+
 ## What this skill is NOT
 
 - Not parallel — that's Plan 4
 - Not template-aware — that's Plan 3
 - Not deployment-aware — that's Plan 8
-- Not learning-aware — that's Plan 6
 - Not quota-aware — that's Plan 7
 
 ## On every dispatch

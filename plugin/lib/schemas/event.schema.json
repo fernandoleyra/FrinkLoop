@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "FrinkLoop learning event",
+  "type": "object",
+  "required": ["schema_version", "event", "ts", "project"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "type": "integer", "const": 1 },
+    "event": {
+      "type": "string",
+      "enum": ["task_done", "task_failed", "task_retried", "milestone_done", "qa_pass", "qa_fail", "blocker_opened", "project_done"]
+    },
+    "ts": { "type": "string" },
+    "project": { "type": "string" },
+    "task_id": { "type": "string" },
+    "task_kind": {
+      "type": "string",
+      "enum": ["scaffold", "feature", "test", "fix", "doc", "deploy", "screenshot"]
+    },
+    "duration_s": { "type": "number", "minimum": 0 },
+    "template": { "type": ["string", "null"] },
+    "recipe": { "type": ["string", "null"] },
+    "details": { "type": "object" }
+  }
+}
