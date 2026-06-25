@@ -1,0 +1,114 @@
+name: nexus
+version: "1.0"
+description: >
+  NEXUS — A Renaissance-grade multi-agent web app development firm.
+  A team of specialized AI agents that collaborate autonomously to design,
+  build, and iterate on complex web applications from a user briefing
+  through to a working MVP. Inspired by the rigorous quantitative discipline
+  of Renaissance Technologies and the model-driven intelligence of Palantir.
+
+language: python
+entrypoint: agents/pm.py
+trigger: cli
+
+model:
+  provider: anthropic
+  name: claude-opus-4-5
+  max_tokens: 16000
+  temperature: 0.3
+
+# ── Agent roster ──────────────────────────────────────────────────────────────
+agents:
+  - name: pm
+    file: agents/pm.py
+    description: "User-facing Project Manager. Runs the intake interview, maintains the spec, drives iterations to MVP."
+    prompt: prompts/pm.txt
+
+  - name: project_lead
+    file: agents/project_lead.py
+    description: "Devil's Advocate Project Lead. Stress-tests every decision, identifies blind spots, arbitrates between agents."
+    prompt: prompts/project_lead.txt
+
+  - name: rd
+    file: agents/rd.py
+    description: "R&D Scientist. Deep technical research — stack selection, feasibility, architecture patterns, emerging tech."
+    prompt: prompts/rd.txt
+
+  - name: engineering
+    file: agents/engineering.py
+    description: "Senior Full-Stack Engineer. Writes production-quality code, implements features, refactors."
+    prompt: prompts/engineering.txt
+
+  - name: ux_design
+    file: agents/ux_design.py
+    description: "UX/Design Lead. User flows, component specs, accessibility, visual hierarchy, design system."
+    prompt: prompts/ux_design.txt
+
+  - name: data_analyst
+    file: agents/data_analyst.py
+    description: "Data Analyst. Metrics frameworks, schema design, analytics pipelines, KPI instrumentation."
+    prompt: prompts/data_analyst.txt
+
+  - name: product_visionary
+    file: agents/product_visionary.py
+    description: "Product Visionary. Market positioning, feature roadmap, business model, competitive landscape."
+    prompt: prompts/product_visionary.txt
+
+  - name: qa_security
+    file: agents/qa_security.py
+    description: "QA & Security Engineer. Test suites, threat modelling, code review, vulnerability scanning."
+    prompt: prompts/qa_security.txt
+
+  - name: devops
+    file: agents/devops.py
+    description: "DevOps Engineer. CI/CD, infra-as-code, deployment, monitoring, environment configuration."
+    prompt: prompts/devops.txt
+
+  - name: biz_strategist
+    file: agents/biz_strategist.py
+    description: "Business Strategist. GTM strategy, pricing, partnerships, revenue model, investor narrative."
+    prompt: prompts/biz_strategist.txt
+
+# ── Tools available to all agents ─────────────────────────────────────────────
+tools:
+  - web_search
+  - web_fetch
+  - file_reader
+  - file_writer
+  - code_executor
+  - memory_store
+  - memory_recall
+  - shell_command
+
+# ── Shared memory (SQLite) ────────────────────────────────────────────────────
+memory:
+  enabled: true
+  type: sqlite
+  path: memory/nexus.db
+  tables:
+    - project_spec       # The living spec doc
+    - agent_decisions    # Logged decisions per agent per sprint
+    - artifacts          # Produced files with metadata
+    - sprint_log         # Sprint history and status
+    - open_questions     # Unresolved questions raised by any agent
+
+# ── Environment ───────────────────────────────────────────────────────────────
+env_required:
+  - ANTHROPIC_API_KEY
+
+env_optional:
+  - SERPAPI_KEY          # Enables richer web search
+  - NEXUS_LOG_LEVEL      # DEBUG | INFO (default INFO)
+
+# ── Iteration control ─────────────────────────────────────────────────────────
+iteration:
+  max_sprints: 20           # Hard ceiling; PM can stop earlier
+  sprint_review_gate: true  # PL must sign off before next sprint
+  mvp_criteria_file: outputs/mvp_criteria.md
+
+# ── Output ────────────────────────────────────────────────────────────────────
+output:
+  root: outputs/
+  codebase: outputs/app/
+  docs: outputs/docs/
+  reports: outputs/reports/
