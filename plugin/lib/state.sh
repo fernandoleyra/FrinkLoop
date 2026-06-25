@@ -49,6 +49,7 @@ state_increment_iteration() {
   local current
   current=$(state_get iteration_count)
   state_set iteration_count "$((current + 1))"
+  state_set last_iteration_at "$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
 }
 
 log_iteration() {

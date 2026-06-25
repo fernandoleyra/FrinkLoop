@@ -14,6 +14,7 @@
     "status": {
       "type": "string",
       "enum": ["idle", "running", "paused", "blocked", "quota-stopped", "done"]
-    }
+    },
+    "last_iteration_at": { "type": ["string", "null"] }
   }
 }
