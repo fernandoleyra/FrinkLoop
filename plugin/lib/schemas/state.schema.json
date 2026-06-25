@@ -15,6 +15,7 @@
       "type": "string",
       "enum": ["idle", "running", "paused", "blocked", "quota-stopped", "done"]
     },
-    "last_iteration_at": { "type": ["string", "null"] }
+    "last_iteration_at": { "type": ["string", "null"] },
+    "quota_reset_at": { "type": ["string", "null"] }
   }
 }
