@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "milestones": [
+    {
+      "id": "m1",
+      "title": "Scaffold",
+      "status": "in-progress",
+      "tasks": [
+        {"id": "T01", "title": "Bootstrap Vite+shadcn project", "status": "done",    "kind": "scaffold"},
+        {"id": "T02", "title": "Apply tailwind recipe",         "status": "pending", "kind": "scaffold"},
+        {"id": "T03", "title": "Write project README",          "status": "pending", "kind": "doc", "depends_on": ["T02"]}
+      ]
+    },
+    {
+      "id": "m2",
+      "title": "Core flow",
+      "status": "pending",
+      "tasks": [
+        {"id": "T04", "title": "Add todo list component",       "status": "pending", "kind": "feature"},
+        {"id": "T05", "title": "Add todo add/remove tests",     "status": "pending", "kind": "test",    "depends_on": ["T04"]},
+        {"id": "T06", "title": "Write component JSDoc",         "status": "pending", "kind": "doc",     "depends_on": ["T05"]}
+      ]
+    },
+    {
+      "id": "m3",
+      "title": "Deliver",
+      "status": "pending",
+      "tasks": [
+        {"id": "T07", "title": "Deploy to Vercel",              "status": "pending", "kind": "deploy"},
+        {"id": "T08", "title": "Capture screenshots",           "status": "pending", "kind": "screenshot", "depends_on": ["T07"]}
+      ]
+    }
+  ]
+}
